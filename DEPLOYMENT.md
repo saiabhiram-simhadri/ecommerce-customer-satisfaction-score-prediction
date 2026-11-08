@@ -13,6 +13,12 @@ For the project overview and validation results, see [README.md](README.md). The
 
 Application dependencies are pinned in [requirements-deployment.txt](requirements-deployment.txt). Once installed, normal application use works offline with the bundled artifacts and synthetic examples. The source training dataset is not needed for inference.
 
+## Source dataset
+
+The analysis and training data is available at [data/eCommerce_Customer_support_data.csv](data/eCommerce_Customer_support_data.csv). It contains **85,907 interactions and 20 original columns**. See the [README notebook instructions](README.md#notebook-exploration) to load this local copy instead of the notebook's Google Drive source.
+
+The raw dataset is separate from the application's batch input format. Use [demo_interactions.csv](demo_interactions.csv) as the upload template, with the elapsed durations and column names listed below. Starting the application does not require loading the training CSV.
+
 ## 1. Clone the repository
 
 ```shell
@@ -45,12 +51,6 @@ The commands use the virtual environment's interpreter directly, so environment 
 ## 3. Launch the application
 
 ### Windows PowerShell
-
-```powershell
-.\run_demo.ps1
-```
-
-If PowerShell blocks script execution, launch Streamlit directly:
 
 ```powershell
 .\.venv\Scripts\python.exe -m streamlit run app.py --server.address 127.0.0.1 --server.port 8501 --browser.gatherUsageStats false
@@ -140,7 +140,7 @@ Windows PowerShell:
 
 ```powershell
 $env:CSAT_HISTORY_PATH = Join-Path (Get-Location) 'local_data/custom_predictions.sqlite3'
-.\run_demo.ps1
+.\.venv\Scripts\python.exe -m streamlit run app.py --server.address 127.0.0.1 --server.port 8501 --browser.gatherUsageStats false
 ```
 
 Linux or macOS:
@@ -159,7 +159,7 @@ Keep these bundled files together in `csat_deployment_artifacts/`:
 | `champion_csat_ann.keras` | Trained five-class ANN used for inference. |
 | `tfidf_vectorizer.joblib` | Fitted text vectorizer. |
 | `deployment_metadata.json` | Exact feature order, categories, defaults, caps, class mapping, and model version. |
-| `parity_fixture.npz` | Numerical inputs and expected probabilities used by regression checks. |
+| `parity_fixture.npz` | Numerical inputs and expected probabilities recorded during export verification. |
 | `parity_report.json` | Recorded export consistency checks. |
 
 Load only trusted model and joblib artifacts.
@@ -173,23 +173,7 @@ Application responsibilities are separated across:
 - [deployment/history.py](deployment/history.py): SQLite persistence.
 - [deployment/export.py](deployment/export.py): artifact export from trained notebook state.
 
-## Run the integration checks
-
-After installing dependencies, run from the repository root.
-
-Windows PowerShell:
-
-```powershell
-.\.venv\Scripts\python.exe -m unittest discover -s tests -v
-```
-
-Linux or macOS:
-
-```bash
-./.venv/bin/python -m unittest discover -s tests -v
-```
-
-The tests cover model probability parity, preprocessing, category encoding, invalid inputs, batch predictions, SQLite history, and Streamlit form submissions and reruns. History checks use a temporary database.
+## Export verification
 
 The bundled parity report records feature reconstruction checks for **12,887 held-out rows and 142 features**, with a maximum difference of approximately **2.22 × 10⁻¹⁶**. Model probabilities were compared on **128 rows**, with a maximum difference of **0.0**. These checks measure numerical consistency, not predictive accuracy.
 
@@ -209,14 +193,13 @@ export_from_session(globals())
 
 The exporter checks preprocessing and model parity and writes the deployment artifacts. It reads the trained objects from memory and does not retrain the model. Keep the resulting model, vectorizer, metadata, and parity files together as one bundle.
 
-Restart Streamlit after replacing artifacts to clear the cached model, then run the integration checks.
+Restart Streamlit after replacing artifacts to clear the cached model, then check single and batch predictions using the bundled examples.
 
 ## Troubleshooting
 
 | Symptom | Action |
 | --- | --- |
 | `Project .venv is missing` | Create the Python 3.12 environment in the repository root using the setup commands. |
-| PowerShell blocks `run_demo.ps1` | Use the direct Streamlit command above. |
 | A dependency cannot be installed | Confirm Python 3.12 is selected and check package availability for the operating system and architecture. |
 | Model cannot be loaded | Check that all required artifacts exist and dependencies match the pinned requirements. |
 | Model and input schema do not match | Restore a matching deployment bundle or export the model and preprocessing files together. |

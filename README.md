@@ -19,7 +19,38 @@ The source dataset contains **20 original columns** covering support channels, i
 - **Available measurements:** 28,742 customer remarks, 17,206 item prices, and 242 handling times, only 104 interactions have both price and handling time.
 - **Analysis:** missing-value assessment, rating distributions, support-group comparisons, timing patterns, and statistical hypothesis tests.
 
-The notebook loads its source CSV from a shared Google Drive URL. The raw training dataset is not bundled in this repository. The included [demo CSV](demo_interactions.csv) contains synthetic examples for the application.
+The source dataset is included at [data/eCommerce_Customer_support_data.csv](data/eCommerce_Customer_support_data.csv), with **85,907 rows and 20 columns**. Use it for notebook analysis and training. The separate [demo CSV](demo_interactions.csv) contains synthetic examples formatted for application uploads.
+
+## Feature descriptions
+
+The following table describes the original dataset columns using the variable definitions from the notebook.
+
+| Feature | Type | Description |
+| --- | --- | --- |
+| `Unique id` | String / Alphanumeric | Unique identifier assigned to track each individual customer support ticket or interaction. |
+| `channel_name` | String / Categorical | Support channel through which the interaction took place, such as Inbound call, Outcall, or Email. |
+| `category` | String / Categorical | High-level functional category of the customer request (e.g., Returns, Order Related, Cancellation, Product Queries). |
+| `Sub-category` | String / Categorical | Specific issue or granular service topic under the main category (e.g., Reverse Pickup Enquiry, Installation/demo, Delayed). |
+| `Customer Remarks` | String / Text | Free-form qualitative feedback and comments provided by the customer regarding their service experience. |
+| `Order_id` | String / Alphanumeric | Unique order identifier associated with the support ticket (missing for some tickets, the reason is not established). |
+| `order_date_time` | Datetime / String | Exact date and timestamp when the customer originally placed the purchase order. |
+| `Issue_reported at` | Datetime / String | Timestamp when the customer first reported the issue or contacted customer support. |
+| `issue_responded` | Datetime / String | Timestamp when a customer support representative responded to or handled the inquiry. |
+| `Survey_response_Date` | Datetime / String | Date when the customer submitted their feedback rating and survey response. |
+| `Customer_City` | String / Categorical | Registered delivery city or geographic location of the customer. |
+| `Product_category` | String / Categorical | Merchandise department or product classification of the purchased item (e.g., Electronics, LifeStyle, Mobile). |
+| `Item_price` | Float / Continuous | Purchase monetary value associated with the ticket, currency is not documented in the CSV. |
+| `connected_handling_time` | Float / Continuous | Duration taken by the agent to handle the customer interaction, reported in source units, the CSV does not document the duration unit. |
+| `Agent_name` | String / Categorical | Name of the customer service representative who handled the interaction. |
+| `Supervisor` | String / Categorical | Direct team lead or supervisor overseeing the handling agent. |
+| `Manager` | String / Categorical | Support operations manager responsible for the respective support unit. |
+| `Tenure Bucket` | String / Categorical | Experience band of the handling agent (e.g., On Job Training, 0-30, 31-60, 61-90, >90 days). |
+| `Agent Shift` | String / Categorical | Operational working shift during which the interaction occurred (Morning, Afternoon, Evening, Night, Split). |
+| `CSAT Score` | Integer / Ordinal | Customer Satisfaction score given by the customer on a discrete 1-to-5 scale, serving as the primary multi-class target variable. |
+
+The final model input contains **100 TF-IDF features**, **30 category indicators**, and **12 numerical or engineered features**. Category encoding drops the first level of each categorical field. Blank remarks become `No remarks provided`, and blank numerical values use the exported defaults. Supported categories and defaults are documented in [DEPLOYMENT.md](DEPLOYMENT.md).
+
+The target, **`CSAT Score`**, is an integer rating from **1 to 5** and is not supplied as a prediction input. Identifiers, staff names, and raw timestamps are excluded from the final model inputs.
 
 ## Modeling workflow
 
@@ -74,16 +105,10 @@ git clone https://github.com/saiabhiram-simhadri/ecommerce-customer-satisfaction
 cd ecommerce-customer-satisfaction-score-prediction
 py -3.12 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements-deployment.txt
-.\run_demo.ps1
+.\.venv\Scripts\python.exe -m streamlit run app.py --server.address 127.0.0.1 --server.port 8501 --browser.gatherUsageStats false
 ```
 
 Open **http://127.0.0.1:8501**. Stop the application with **Ctrl+C**. After dependencies are installed, normal application use works offline with the bundled artifacts.
-
-If PowerShell blocks the launch script, run Streamlit directly:
-
-```powershell
-.\.venv\Scripts\python.exe -m streamlit run app.py --server.address 127.0.0.1 --server.port 8501 --browser.gatherUsageStats false
-```
 
 ### Batch input and saved history
 
@@ -98,6 +123,8 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for the full input schema, defaults, supporte
 ```text
 .
 ├── E_Commerce_Customer_Satisfaction_Score_Prediction.ipynb  # Analysis and modeling
+├── data/
+│   └── eCommerce_Customer_support_data.csv               # Source analysis and training dataset
 ├── app.py                                               # Streamlit interface
 ├── deployment/
 │   ├── predictor.py                                     # Validation and inference
@@ -106,10 +133,8 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for the full input schema, defaults, supporte
 ├── csat_deployment_artifacts/                            # Model, vectorizer, metadata, parity fixture
 ├── docs/
 │   └── csat_prediction_workflow_report.docx              # Submission report
-├── tests/test_deployment.py                              # Integration checks
 ├── demo_interactions.csv                                # Synthetic batch examples
 ├── requirements-deployment.txt                           # Pinned application dependencies
-├── run_demo.ps1                                          # Local launch script
 └── DEPLOYMENT.md                                         # Detailed application guide
 ```
 
@@ -117,17 +142,17 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for the full input schema, defaults, supporte
 
 Open the [notebook](E_Commerce_Customer_Satisfaction_Score_Prediction.ipynb) to review the analysis, model architecture, evaluation outputs, and charts. GitHub can display its saved outputs without running the training workflow.
 
-To execute the analysis, use a Jupyter environment with the notebook's imported packages, including SciPy, Matplotlib, and Seaborn alongside the modeling dependencies. The deployment requirements file supports the application and is not a complete notebook environment specification. Loading the source dataset requires network access.
+To execute the analysis, use a Jupyter environment with the notebook's imported packages, including SciPy, Matplotlib, and Seaborn alongside the modeling dependencies. The deployment requirements file supports the application and is not a complete notebook environment specification. The notebook currently loads the dataset from Google Drive. To use the bundled CSV offline, replace its dataset-loading cell with the following code and run the notebook with the repository root as the working directory:
 
-## Verification
+```python
+import pandas as pd
 
-Run the integration checks from the repository root after installing the deployment dependencies:
-
-```powershell
-.\.venv\Scripts\python.exe -m unittest discover -s tests -v
+cust_support_df = pd.read_csv("data/eCommerce_Customer_support_data.csv")
 ```
 
-The checks cover preprocessing, input validation, category encoding, batch predictions, model probability parity, SQLite history, and Streamlit form interactions.
+The raw dataset uses the original column names and timestamps. Use `demo_interactions.csv`, rather than the raw training CSV, as the application's batch input template.
+
+## Export verification
 
 The bundled [parity report](csat_deployment_artifacts/parity_report.json) records feature reconstruction checks across **12,887 held-out rows and 142 features**, with a maximum difference of approximately **2.22 × 10⁻¹⁶**. Reloaded model probabilities were compared on **128 rows**, with a maximum difference of **0.0**. These checks measure numerical consistency, rather than prediction accuracy against actual ratings.
 
@@ -143,6 +168,7 @@ Future work includes improving missing-value treatment, evaluating the selected 
 
 ## Project documents
 
+- [Source dataset](data/eCommerce_Customer_support_data.csv)
 - [Analysis and modeling notebook](E_Commerce_Customer_Satisfaction_Score_Prediction.ipynb)
 - [Project report (Word)](docs/csat_prediction_workflow_report.docx)
 - [Deployment and demonstration guide](DEPLOYMENT.md)
