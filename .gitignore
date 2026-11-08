@@ -1,0 +1,6 @@
+.venv/
+.venv.backup-*/
+.idea/
+__pycache__/
+*.py[cod]
+local_data/

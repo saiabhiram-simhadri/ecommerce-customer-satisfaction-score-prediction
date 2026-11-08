@@ -1,0 +1,7 @@
+channel_name,category,product_category,tenure_bucket,agent_shift,customer_remarks,item_price,connected_handling_time,response_time_hours,order_to_issue_days,survey_lag_hours,issue_hour,is_weekend
+Inbound,Product Queries,Electronics,>90,Morning,Excellent service thank you for the helpful support,979,120,0.1,2,0,10,0
+Email,Refund Related,LifeStyle,0-30,Night,Worst service refund never received poor response,899,427,48,15,0,22,1
+Outcall,Order Related,Mobile,31-60,Evening,Delivery delayed and issue still not resolved,500,300,24,9,0,18,0
+Inbound,Returns,Home,61-90,Afternoon,Return request resolved thanks,700,240,1,4,0,14,0
+Email,Cancellation,Furniture,On Job Training,Split,Please cancel my order,979,427,5,1,0,9,1
+Outcall,Feedback,General / Not Specified,>90,Morning,Good customer care,979,200,0.2,3,0,11,0
