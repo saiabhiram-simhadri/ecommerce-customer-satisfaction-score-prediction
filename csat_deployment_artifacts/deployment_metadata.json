@@ -237,9 +237,9 @@
     "joblib": "1.6.0"
   },
   "limitations": [
-    "Retrospective rated-interaction prototype; early-warning performance is unverified.",
+    "Retrospective rated-interaction prototype, early-warning performance is unverified.",
     "Preprocessing and text vocabulary were fitted before splitting in the source notebook.",
-    "Survey lag was constant zero in training; the app requires zero.",
+    "Survey lag was constant zero in training, the app requires zero.",
     "Price and handling-time caps collapse most values to 979 and 427 respectively.",
     "Probabilities are uncalibrated. Historical CSAT is required to measure accuracy."
   ]

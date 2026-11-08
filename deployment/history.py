@@ -25,7 +25,7 @@ def open_database(path=None):
 
 
 def save_predictions(inputs, results, version, source, path=None):
-    """Save one summary per prediction; leave customer remarks out of history."""
+    """Save one summary per prediction, leave customer remarks out of history."""
     history = results[["predicted_csat", "top_probability", "low_csat_probability", "follow_up"]].copy()
     history["prediction_id"] = [str(uuid.uuid4()) for _ in range(len(results))]
     history["created_at"] = datetime.now(timezone.utc).isoformat()

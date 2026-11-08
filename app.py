@@ -141,7 +141,7 @@ def main():
         st.write("Trained neural network · CSAT ratings 1–5")
         st.caption("Combines customer remarks, support details, and response timing across 142 input features.")
         st.info("Ratings of 1 or 2 are flagged for follow-up.")
-        st.caption("Demo predictions support review; they are not actual customer survey ratings.")
+        st.caption("Demo predictions support review, they are not actual customer survey ratings.")
     st.title("Customer Satisfaction Predictor")
     st.write("Enter support details and use the trained ANN to predict a CSAT rating from 1 to 5.")
     try:

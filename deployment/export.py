@@ -1,4 +1,4 @@
-"""Export existing notebook state; do not retrain or edit the source notebook."""
+"""Export existing notebook state, do not retrain or edit the source notebook."""
 from datetime import datetime, timezone
 import hashlib
 import importlib.metadata
@@ -30,9 +30,9 @@ def export_from_session(namespace):
         "class_mapping": {str(i): i + 1 for i in range(5)},
         "training_rows": len(namespace["X_train"]),
         "packages": {p: importlib.metadata.version(p) for p in ["tensorflow", "keras", "numpy", "pandas", "scikit-learn", "joblib"]},
-        "limitations": ["Retrospective rated-interaction prototype; early-warning performance is unverified.",
+        "limitations": ["Retrospective rated-interaction prototype, early-warning performance is unverified.",
                         "Preprocessing and text vocabulary were fitted before splitting in the source notebook.",
-                        "Survey lag was constant zero in training; the app requires zero.",
+                        "Survey lag was constant zero in training, the app requires zero.",
                         "Price and handling-time caps collapse most values to 979 and 427 respectively.",
                         "Probabilities are uncalibrated. Historical CSAT is required to measure accuracy."]
     }
